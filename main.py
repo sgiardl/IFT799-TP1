@@ -2,7 +2,7 @@
 IFT799 - Science des données
 TP1
 Automne 2021
-Olivier Lefebvre
+Olivier Lefebvre 17079778
 Simon Giard-Leroux
 '''
 
