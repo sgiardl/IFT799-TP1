@@ -57,7 +57,7 @@ if __name__ == '__main__':
                                                 species_to=species,
                                                 variables_list=variables_comb,
                                                 distance_method=distance_method,
-                                                calculation_method='manual',
+                                                calculation_method=calculation_method,
                                                 verbose=verbose)
 
                 intra_class_df = intra_class_df.append({'species': species,
@@ -80,7 +80,7 @@ if __name__ == '__main__':
                                                    species_to=species_comb[1],
                                                    variables_list=variables_comb,
                                                    distance_method=distance_method,
-                                                   calculation_method='manual',
+                                                   calculation_method=calculation_method,
                                                    verbose=verbose)
 
                 inter_dist = calculate_distance(X_dict=X_dict,
@@ -88,7 +88,7 @@ if __name__ == '__main__':
                                                 species_to=species_comb[1],
                                                 variables_list=variables_comb,
                                                 distance_method=distance_method,
-                                                calculation_method='manual',
+                                                calculation_method=calculation_method,
                                                 verbose=verbose)
 
                 flag_well_separated = verify_class_separation(species_from=species_comb[0],
