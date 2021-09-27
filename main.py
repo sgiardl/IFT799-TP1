@@ -27,6 +27,9 @@ if __name__ == '__main__':
                         help='Choose to use either a manual or scipy implementation of '
                              'euclidean and mahalanobis distance calculations')
 
+    parser.add_argument('-norm_pca', '--normalize_pca', action='store', type=bool, default=True,
+                        help='Choose to apply Z-score normalization to the data used for PCA')
+
     parser.add_argument('-sh_plts', '--show_plots', action='store', type=bool, default=False,
                         help='Choose to show plots')
 
@@ -138,7 +141,11 @@ if __name__ == '__main__':
         variables_dict[pca_component] = f'pca{i}'
 
     pca = PCA(n_components=pca_n_components)
-    X_PCA = pd.DataFrame(pca.fit_transform(StandardScaler().fit_transform(X.values)), columns=pca_components_list)
+
+    if args.normalize_pca:
+        X_PCA = pd.DataFrame(pca.fit_transform(StandardScaler().fit_transform(X.values)), columns=pca_components_list)
+    else:
+        X_PCA = pd.DataFrame(pca.fit_transform(X.values), columns=pca_components_list)
 
     for species in species_list:
         X_dict[species]['data_transformed'] = X_PCA.loc[Y['species'] == species]
