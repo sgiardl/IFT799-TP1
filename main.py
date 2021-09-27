@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler
 from src.distance_fct import calculate_distance, verify_class_separation
 from src.list_utils import get_all_combinations, get_combinations_of_two
 from src.plotting import plot_histograms, plot_scatter_plots
+from src.latex import format_intra_class_df, format_inter_class_df, print_latex_table
 
 
 if __name__ == '__main__':
@@ -40,7 +41,16 @@ if __name__ == '__main__':
                         choices=['pdf', 'png', 'svg'],
                         help='Choose')
 
+    parser.add_argument('-ltx', '--print_latex', action='store', type=bool, default=True,
+                        help='Choose to print LaTeX code for results tables')
+
+    parser.add_argument('-nd', '--num_decimals', action='store', type=int, default=4,
+                        help='Choose the number of decimals for floating point values rounding')
+
     args = parser.parse_args()
+
+    print('=== Arguments ===')
+    print(vars(args))
 
     # Loading data from the csv file
     iris_data = pd.read_csv('data/iris.csv')
@@ -67,7 +77,8 @@ if __name__ == '__main__':
 
     # 1.a + 1.b
 
-    print('=== Intra-Class Distances ===\n')
+    if args.verbose:
+        print('=== Intra-Class Distances ===\n')
 
     intra_class_df = pd.DataFrame(columns=['species', 'variables', 'method', 'distance'])
 
@@ -80,16 +91,17 @@ if __name__ == '__main__':
                                                 variables_list=variables_comb,
                                                 distance_method=distance_method,
                                                 calculation_method=args.calculation_method,
-                                                verbose=args.verbose)
+                                                verbose=args.verbose,
+                                                number_of_decimals=args.num_decimals)
 
                 intra_class_df = intra_class_df.append({'species': species,
                                                         'variables': variables_comb,
                                                         'method': distance_method,
                                                         'distance': intra_dist}, ignore_index=True)
 
-    print(intra_class_df)
-
-    print('\n=== Inter-Class Distances ===\n')
+    if args.verbose:
+        print(intra_class_df)
+        print('\n=== Inter-Class Distances ===\n')
 
     inter_class_df = pd.DataFrame(columns=['species from', 'species to', 'variables',
                                            'method', 'distance', 'well separated'])
@@ -103,7 +115,8 @@ if __name__ == '__main__':
                                                    variables_list=variables_comb,
                                                    distance_method=distance_method,
                                                    calculation_method=args.calculation_method,
-                                                   verbose=args.verbose)
+                                                   verbose=args.verbose,
+                                                   number_of_decimals=args.num_decimals)
 
                 inter_dist = calculate_distance(X_dict=X_dict,
                                                 species_from=species_comb[0],
@@ -111,7 +124,8 @@ if __name__ == '__main__':
                                                 variables_list=variables_comb,
                                                 distance_method=distance_method,
                                                 calculation_method=args.calculation_method,
-                                                verbose=args.verbose)
+                                                verbose=args.verbose,
+                                                number_of_decimals=args.num_decimals)
 
                 flag_well_separated = verify_class_separation(species_from=species_comb[0],
                                                               species_to=species_comb[1],
@@ -126,7 +140,8 @@ if __name__ == '__main__':
                                                         'distance': inter_dist,
                                                         'well separated': flag_well_separated}, ignore_index=True)
 
-    print(inter_class_df)
+    if args.verbose:
+        print(inter_class_df)
 
     # 2.c
 
@@ -150,46 +165,65 @@ if __name__ == '__main__':
     for species in species_list:
         X_dict[species]['data_transformed'] = X_PCA.loc[Y['species'] == species]
 
-    # 2.a
+    if args.print_latex:
+        clean_intra_class_df = format_intra_class_df(df_input=intra_class_df,
+                                                     variables_list=variables_list_all_combs,
+                                                     variables_dict=variables_dict,
+                                                     species_list=species_list,
+                                                     distance_methods=distance_methods,
+                                                     number_of_decimals=args.num_decimals)
 
-    plot_histograms(X_dict=X_dict,
-                    data_type='data',
-                    species_list=species_list_combs,
-                    variables_list=variables_list,
-                    variables_dict=variables_dict,
-                    show_plots=args.show_plots,
-                    save_plots=args.save_plots,
-                    plot_file_ext=args.plot_file_ext)
+        print_latex_table(df=clean_intra_class_df, header='Intra-Class Table')
 
-    # 2.a + 2.c
+        clean_inter_class_df_dict = {', '.join(species_list_comb):
+                                         format_inter_class_df(df_input=inter_class_df,
+                                                               variables_list=variables_list_all_combs,
+                                                               variables_dict=variables_dict,
+                                                               species_list=species_list_comb,
+                                                               distance_methods=distance_methods,
+                                                               number_of_decimals=args.num_decimals)
+                                     for species_list_comb in species_list_combs}
 
-    plot_histograms(X_dict=X_dict,
-                    data_type='data_transformed',
-                    species_list=species_list_combs,
-                    variables_list=pca_components_list,
-                    variables_dict=variables_dict,
-                    show_plots=args.show_plots,
-                    save_plots=args.save_plots,
-                    plot_file_ext=args.plot_file_ext)
+        for key, val in clean_inter_class_df_dict.items():
+            print_latex_table(df=val, header=f'Inter-Class Table: {key}')
 
-    # 2.b
+    if args.show_plots or args.save_plots:
+        # 2.a
+        plot_histograms(X_dict=X_dict,
+                        data_type='data',
+                        species_list=species_list_combs,
+                        variables_list=variables_list,
+                        variables_dict=variables_dict,
+                        show_plots=args.show_plots,
+                        save_plots=args.save_plots,
+                        plot_file_ext=args.plot_file_ext)
 
-    plot_scatter_plots(X_dict=X_dict,
-                       data_type='data',
-                       species_list=species_list_combs,
-                       variables_list=variables_list_two_combs,
-                       variables_dict=variables_dict,
-                       show_plots=args.show_plots,
-                       save_plots=args.save_plots,
-                       plot_file_ext=args.plot_file_ext)
+        # 2.a + 2.c
+        plot_histograms(X_dict=X_dict,
+                        data_type='data_transformed',
+                        species_list=species_list_combs,
+                        variables_list=pca_components_list,
+                        variables_dict=variables_dict,
+                        show_plots=args.show_plots,
+                        save_plots=args.save_plots,
+                        plot_file_ext=args.plot_file_ext)
 
-    # 2.b + 2.c
+        # 2.b
+        plot_scatter_plots(X_dict=X_dict,
+                           data_type='data',
+                           species_list=species_list_combs,
+                           variables_list=variables_list_two_combs,
+                           variables_dict=variables_dict,
+                           show_plots=args.show_plots,
+                           save_plots=args.save_plots,
+                           plot_file_ext=args.plot_file_ext)
 
-    plot_scatter_plots(X_dict=X_dict,
-                       data_type='data_transformed',
-                       species_list=species_list_combs,
-                       variables_list=pca_components_list_two_combs,
-                       variables_dict=variables_dict,
-                       show_plots=args.show_plots,
-                       save_plots=args.save_plots,
-                       plot_file_ext=args.plot_file_ext)
+        # 2.b + 2.c
+        plot_scatter_plots(X_dict=X_dict,
+                           data_type='data_transformed',
+                           species_list=species_list_combs,
+                           variables_list=pca_components_list_two_combs,
+                           variables_dict=variables_dict,
+                           show_plots=args.show_plots,
+                           save_plots=args.save_plots,
+                           plot_file_ext=args.plot_file_ext)

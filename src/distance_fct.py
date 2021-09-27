@@ -7,7 +7,6 @@ Simon Giard-Leroux
 """
 
 import numpy as np
-import pandas as pd
 from scipy.spatial import distance
 
 
@@ -17,8 +16,8 @@ def calculate_distance(X_dict: dict,
                        variables_list: list[str],
                        distance_method: str,
                        calculation_method: str,
-                       verbose: bool = True,
-                       number_of_decimals: int = 4) -> float:
+                       verbose: bool,
+                       number_of_decimals: int) -> float:
 
     # Intra-class distance if species_from == '', else directional inter-class distance
     data = X_dict[species_to]['data'] if species_from == '' else X_dict[species_from]['data']
@@ -98,7 +97,7 @@ def verify_class_separation(species_from: str,
                             species_to: str,
                             intra_distance_to: float,
                             inter_distance: float,
-                            verbose: bool = True) -> bool:
+                            verbose: bool) -> bool:
     if intra_distance_to < inter_distance:
         if verbose:
             print(f'The species {species_from} and {species_to} are well separated.')
