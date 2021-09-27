@@ -110,7 +110,7 @@ if __name__ == '__main__':
 
     pca_n_components = len(variables_list)
 
-    pca_components_list = [f'PCA Component {i + 1}' for i in range(pca_n_components)]
+    pca_components_list = [f'Composante PCA {i}' for i in range(1, pca_n_components + 1)]
     pca_components_list_two_combs = get_combinations_of_two(pca_components_list, include_rev=False)
 
     pca = PCA(n_components=pca_n_components)
