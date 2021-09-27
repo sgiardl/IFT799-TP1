@@ -10,32 +10,36 @@ import numpy as np
 import pandas as pd
 from scipy.spatial import distance
 from itertools import combinations
+import matplotlib.pyplot as plt
 
 
-def get_variables_combinations(variables: list) -> list:
-    variables_combs = []
+def get_all_combinations(my_list: list) -> list:
+    all_combs = []
 
-    for i in range(len(variables) + 1):
-        for comb in combinations(variables, i):
-            variables_combs.append(list(comb))
+    for i in range(len(my_list) + 1):
+        for comb in combinations(my_list, i):
+            all_combs.append(list(comb))
 
-    variables_combs.remove([])
+    all_combs.remove([])
 
-    return variables_combs
+    return all_combs
 
 
-def get_species_combinations(species: list) -> list:
-    species_combs = []
+def get_combinations_of_two(my_list: list, include_rev: bool) -> list:
+    combs_of_two = []
 
-    for comb in combinations(species, 2):
-        species_combs.append(list(comb))
-        species_combs.append(list(comb))
+    for comb in combinations(my_list, 2):
+        combs_of_two.append(list(comb))
 
-    for i in range(len(species_combs)):
-        if i % 2 != 0:
-            species_combs[i].reverse()
+        if include_rev:
+            combs_of_two.append(list(comb))
 
-    return species_combs
+    if include_rev:
+        for i in range(len(combs_of_two)):
+            if i % 2 != 0:
+                combs_of_two[i].reverse()
+
+    return combs_of_two
 
 
 def calculate_distance(X_dict: dict,
@@ -133,19 +137,23 @@ def verify_class_separation(species_from: str,
 
 
 if __name__ == '__main__':
+    # User Options
     verbose = False
+    calculation_method = 'manual'  # choices = 'manual' or 'scipy'
 
     # Loading data from the csv file
     iris_data = pd.read_csv('data/iris.csv')
 
     variables_list = list(iris_data.columns.values)[:-1]
-    variables_list_combs = get_variables_combinations(variables_list)
+    variables_list_all_combs = get_all_combinations(variables_list)
+    variables_list_two_combs = get_combinations_of_two(variables_list, include_rev=False)
 
     X = iris_data[variables_list]
     Y = iris_data[['species']]
 
     species_list = pd.unique(Y['species']).tolist()
-    species_list_combs = get_species_combinations(species_list)
+    species_list_combs_with_rev = get_combinations_of_two(species_list, include_rev=True)
+    species_list_combs = get_combinations_of_two(species_list, include_rev=False)
 
     distance_methods = ['euclidean', 'mahalanobis']
 
@@ -156,13 +164,15 @@ if __name__ == '__main__':
         X_dict[species]['data'] = X.loc[Y['species'] == species]
         X_dict[species]['metrics'] = X_dict[species]['data'].describe()
 
+    # 1.a & 1.b
+
     print('=== Intra-Class Distances ===\n')
 
     intra_class_df = pd.DataFrame(columns=['species', 'variables', 'method', 'distance'])
 
     for species in species_list:
         for distance_method in distance_methods:
-            for variables_comb in variables_list_combs:
+            for variables_comb in variables_list_all_combs:
                 intra_dist = calculate_distance(X_dict=X_dict,
                                                 species_from='',
                                                 species_to=species,
@@ -183,9 +193,9 @@ if __name__ == '__main__':
     inter_class_df = pd.DataFrame(columns=['species from', 'species to', 'variables',
                                            'method', 'distance', 'well separated'])
 
-    for species_comb in species_list_combs:
+    for species_comb in species_list_combs_with_rev:
         for distance_method in distance_methods:
-            for variables_comb in variables_list_combs:
+            for variables_comb in variables_list_all_combs:
                 intra_dist_to = calculate_distance(X_dict=X_dict,
                                                    species_from='',
                                                    species_to=species_comb[1],
@@ -217,5 +227,42 @@ if __name__ == '__main__':
 
     print(inter_class_df)
 
+    # 2.a
 
+    """
+    Commentaire dans le TP : 
+        Pour faire un histogramme, vous devez choisir vous-
+        même la largeur de chaque « bin », alors que la largeur affecte la qualité visuelle d’un
+        histogramme. Quand vous affichez deux histogrammes sur une même figure, il vaut
+        mieux afficher un histogramme « par-dessus » l’autre.
+        
+        SGL : ??? matplotlib gère déjà bien les bins
+    """
+    for species in species_list_combs:
+        for variable in variables_list:
+            plt.hist([X_dict[species[0]]['data'][variable],
+                      X_dict[species[1]]['data'][variable]],
+                     label=[species[0], species[1]])
+            plt.title(f'{species[0]} vs. {species[1]}, Variable: {variable}')
+            plt.xlabel('Value')
+            plt.ylabel('Frequency')
+            plt.show()
 
+    # 2.b
+
+    for species in species_list_combs:
+        for variables in variables_list_two_combs:
+            plt.scatter(X_dict[species[0]]['data'][variables[0]],
+                        X_dict[species[0]]['data'][variables[1]],
+                        label=species[0])
+            plt.scatter(X_dict[species[1]]['data'][variables[0]],
+                        X_dict[species[1]]['data'][variables[1]],
+                        label=species[1])
+
+            plt.title(f'{species[0]} vs. {species[1]}, Variables: {variables}')
+            plt.xlabel(variables[0])
+            plt.ylabel(variables[1])
+            plt.legend()
+            plt.show()
+
+    # 2.c
