@@ -26,7 +26,7 @@ def plot_histograms(X_dict: dict,
                      label=[species[0], species[1]],
                      stacked=True)
             plt.title(f'Espèces : {", ".join(species)}\nVariable : {variable}')
-            plt.xlabel(f'Valeur de {variable}')
+            plt.xlabel(f'{variable}')
             plt.ylabel('Fréquence')
             plt.legend()
 
