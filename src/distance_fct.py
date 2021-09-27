@@ -7,6 +7,7 @@ Simon Giard-Leroux
 """
 
 import numpy as np
+import pandas as pd
 from scipy.spatial import distance
 
 
@@ -45,7 +46,13 @@ def calculate_distance(X_dict: dict,
                 distance_list.append(sum(point_list) ** 0.5)
 
     elif distance_method == 'mahalanobis':
-        covar_matrix = data.cov().values
+        if species_from == '':
+            covar_matrix = data.cov().values
+        else:
+            data_to = X_dict[species_to]['data']
+            data_to = data_to[variables_list]
+            covar_matrix = data_to.cov().values
+
         inv_covar_matrix = np.linalg.inv(covar_matrix)
 
         # Using scipy
