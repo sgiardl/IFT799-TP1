@@ -24,3 +24,7 @@ Pour exécuter le code, lancer le script principal avec la commande suivante :
 ```
 $ python main.py
 ```
+
+Il est nécessaire de télécharger manuellement le fichier 'iris.csv' 
+de Moodle et de l'insérer dans le répertoire 'data/' (les indications
+du TP1 indiquent de ne pas soumettre les données).
