@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     parser.add_argument('-pfe', '--plot_file_ext', action='store', type=str, default='pdf',
                         choices=['pdf', 'png', 'svg'],
-                        help='Choose')
+                        help='Choose plot file extension')
 
     parser.add_argument('-ltx', '--latex', action='store', type=bool, default=True,
                         help='Choose to create LaTeX code for results tables')
