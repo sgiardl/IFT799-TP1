@@ -56,7 +56,11 @@ if __name__ == '__main__':
     print(f'Arguments:\n{vars(args)}')
 
     # Loading data from the csv file
-    iris_data = pd.read_csv('data/iris.csv')
+    try:
+        iris_data = pd.read_csv('data/iris.csv')
+
+    except FileNotFoundError:
+        raise FileNotFoundError("Please download the iris dataset and save it as 'data/iris.csv' to use this script")
 
     variables_list = list(iris_data.columns.values)[:-1]
     variables_list_all_combs = get_all_combinations(variables_list)
