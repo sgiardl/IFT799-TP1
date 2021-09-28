@@ -17,6 +17,7 @@ def plot_histograms(X_dict: dict,
                     show_plots: bool,
                     save_plots: bool,
                     plot_file_ext: str,
+                    path: str,
                     include_title: bool = False) -> None:
     for species in species_list:
         for variable in variables_list:
@@ -38,7 +39,7 @@ def plot_histograms(X_dict: dict,
                 plt.show()
 
             if save_plots:
-                plt.savefig(f'plots/hist_'
+                plt.savefig(f'{path}hist_'
                             f'{"_".join(species)}'
                             f'_{variables_dict[variable]}'
                             f'.{plot_file_ext}')
@@ -52,6 +53,7 @@ def plot_scatter_plots(X_dict: dict,
                        show_plots: bool,
                        save_plots: bool,
                        plot_file_ext: str,
+                       path: str,
                        include_title: bool = False) -> None:
     for species in species_list:
         for variables in variables_list:
@@ -75,7 +77,7 @@ def plot_scatter_plots(X_dict: dict,
                 plt.show()
 
             if save_plots:
-                plt.savefig(f'plots/scatter_'
+                plt.savefig(f'{path}scatter_'
                             f'{"_".join(species)}'
                             f'_{"_".join([variables_dict[variable] for variable in variables])}'
                             f'.{plot_file_ext}')

@@ -14,7 +14,8 @@ from sklearn.preprocessing import StandardScaler
 from src.distance_fct import calculate_distance, verify_class_separation
 from src.list_utils import get_all_combinations, get_combinations_of_two
 from src.plotting import plot_histograms, plot_scatter_plots
-from src.latex import format_intra_class_df, format_inter_class_df, print_latex_table
+from src.processing import format_intra_class_df, format_inter_class_df, print_latex_table, save_df_to_csv
+from src.constants import PATH_CSV, PATH_PLOTS, PATH_LATEX
 
 
 if __name__ == '__main__':
@@ -47,9 +48,12 @@ if __name__ == '__main__':
     parser.add_argument('-nd', '--num_decimals', action='store', type=int, default=4,
                         help='Choose the number of decimals for floating point values rounding')
 
+    parser.add_argument('-sv_csv', '--save_csv', action='store', type=bool, default=True,
+                        help='Choose to save the results DataFrames into CSV files')
+
     args = parser.parse_args()
 
-    print('=== Arguments ===')
+    print('Arguments:')
     print(vars(args))
 
     # Loading data from the csv file
@@ -77,8 +81,7 @@ if __name__ == '__main__':
 
     # 1.a + 1.b
 
-    if args.verbose:
-        print('=== Intra-Class Distances ===\n')
+    print('\nCalculating intra-class distances...')
 
     intra_class_df = pd.DataFrame(columns=['species', 'variables', 'method', 'distance'])
 
@@ -99,9 +102,13 @@ if __name__ == '__main__':
                                                         'method': distance_method,
                                                         'distance': intra_dist}, ignore_index=True)
 
+    if args.save_csv:
+        save_df_to_csv(intra_class_df, filename='intra_class_raw', path=PATH_CSV)
+
     if args.verbose:
         print(intra_class_df)
-        print('\n=== Inter-Class Distances ===\n')
+
+    print('\nCalculating inter-class distances...')
 
     inter_class_df = pd.DataFrame(columns=['species from', 'species to', 'variables',
                                            'method', 'distance', 'well separated'])
@@ -143,6 +150,9 @@ if __name__ == '__main__':
     if args.verbose:
         print(inter_class_df)
 
+    if args.save_csv:
+        save_df_to_csv(inter_class_df, filename='inter_class_raw', path=PATH_CSV)
+
     # 2.c
 
     pca_n_components = len(variables_list)
@@ -165,30 +175,40 @@ if __name__ == '__main__':
     for species in species_list:
         X_dict[species]['data_transformed'] = X_PCA.loc[Y['species'] == species]
 
-    if args.print_latex:
-        clean_intra_class_df = format_intra_class_df(df_input=intra_class_df,
-                                                     variables_list=variables_list_all_combs,
-                                                     variables_dict=variables_dict,
-                                                     species_list=species_list,
-                                                     distance_methods=distance_methods,
-                                                     number_of_decimals=args.num_decimals)
+    print('\nProcessing results...')
 
-        print_latex_table(df=clean_intra_class_df, header='Intra-Class Table')
+    clean_intra_class_df = format_intra_class_df(df_input=intra_class_df,
+                                                 variables_list=variables_list_all_combs,
+                                                 variables_dict=variables_dict,
+                                                 species_list=species_list,
+                                                 distance_methods=distance_methods,
+                                                 number_of_decimals=args.num_decimals)
+    # if args.print_latex:
+    #     print_latex_table(df=clean_intra_class_df, header='Intra-Class Table')
 
-        clean_inter_class_df_dict = {', '.join(species_list_comb):
-                                         format_inter_class_df(df_input=inter_class_df,
-                                                               variables_list=variables_list_all_combs,
-                                                               variables_dict=variables_dict,
-                                                               species_list=species_list_comb,
-                                                               distance_methods=distance_methods,
-                                                               number_of_decimals=args.num_decimals)
-                                     for species_list_comb in species_list_combs}
+    if args.save_csv:
+        save_df_to_csv(clean_intra_class_df, filename='intra_class_clean', path=PATH_CSV)
 
-        for key, val in clean_inter_class_df_dict.items():
-            print_latex_table(df=val, header=f'Inter-Class Table: {key}')
+    clean_inter_class_df_dict = {'_'.join(species_list_comb):
+                                     format_inter_class_df(df_input=inter_class_df,
+                                                           variables_list=variables_list_all_combs,
+                                                           variables_dict=variables_dict,
+                                                           species_list=species_list_comb,
+                                                           distance_methods=distance_methods,
+                                                           number_of_decimals=args.num_decimals)
+                                 for species_list_comb in species_list_combs}
+
+    for key, val in clean_inter_class_df_dict.items():
+        # if args.print_latex:
+        #     print_latex_table(df=val, header=f'Inter-Class Table: {key}')
+
+        if args.save_csv:
+            save_df_to_csv(val, filename=f'inter_class_clean_{key}', path=PATH_CSV)
 
     if args.show_plots or args.save_plots:
         # 2.a
+        print('\nCreating plots...')
+
         plot_histograms(X_dict=X_dict,
                         data_type='data',
                         species_list=species_list_combs,
@@ -196,7 +216,8 @@ if __name__ == '__main__':
                         variables_dict=variables_dict,
                         show_plots=args.show_plots,
                         save_plots=args.save_plots,
-                        plot_file_ext=args.plot_file_ext)
+                        plot_file_ext=args.plot_file_ext,
+                        path=PATH_PLOTS)
 
         # 2.a + 2.c
         plot_histograms(X_dict=X_dict,
@@ -206,7 +227,8 @@ if __name__ == '__main__':
                         variables_dict=variables_dict,
                         show_plots=args.show_plots,
                         save_plots=args.save_plots,
-                        plot_file_ext=args.plot_file_ext)
+                        plot_file_ext=args.plot_file_ext,
+                        path=PATH_PLOTS)
 
         # 2.b
         plot_scatter_plots(X_dict=X_dict,
@@ -216,7 +238,8 @@ if __name__ == '__main__':
                            variables_dict=variables_dict,
                            show_plots=args.show_plots,
                            save_plots=args.save_plots,
-                           plot_file_ext=args.plot_file_ext)
+                           plot_file_ext=args.plot_file_ext,
+                           path=PATH_PLOTS)
 
         # 2.b + 2.c
         plot_scatter_plots(X_dict=X_dict,
@@ -226,4 +249,7 @@ if __name__ == '__main__':
                            variables_dict=variables_dict,
                            show_plots=args.show_plots,
                            save_plots=args.save_plots,
-                           plot_file_ext=args.plot_file_ext)
+                           plot_file_ext=args.plot_file_ext,
+                           path=PATH_PLOTS)
+
+        print(f'Plots have been saved to: {PATH_PLOTS}')
