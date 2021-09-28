@@ -53,8 +53,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    print('Arguments:')
-    print(vars(args))
+    print(f'Arguments:\n{vars(args)}')
 
     # Loading data from the csv file
     iris_data = pd.read_csv('data/iris.csv')
