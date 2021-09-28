@@ -20,7 +20,7 @@ $ pip install -r requirements.txt
 
 ## Utilisation
 
-Pour exécuter le code, lancez le script principal avec la commande suivante :
+Pour exécuter le code, lancer le script principal avec la commande suivante :
 ```
 $ python main.py
 ```
