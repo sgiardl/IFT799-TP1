@@ -16,7 +16,8 @@ def plot_histograms(X_dict: dict,
                     variables_dict: dict,
                     show_plots: bool,
                     save_plots: bool,
-                    plot_file_ext: str) -> None:
+                    plot_file_ext: str,
+                    include_title: bool = False) -> None:
     for species in species_list:
         for variable in variables_list:
             plt.clf()
@@ -25,10 +26,13 @@ def plot_histograms(X_dict: dict,
                       X_dict[species[1]][data_type][variable]],
                      label=[species[0], species[1]],
                      stacked=True)
-            plt.title(f'Espèces : {", ".join(species)}\nVariable : {variable}')
+
             plt.xlabel(f'{variable}')
             plt.ylabel('Fréquence')
             plt.legend()
+
+            if include_title:
+                plt.title(f'Espèces : {", ".join(species)}\nVariable : {variable}')
 
             if show_plots:
                 plt.show()
@@ -47,7 +51,8 @@ def plot_scatter_plots(X_dict: dict,
                        variables_dict: dict,
                        show_plots: bool,
                        save_plots: bool,
-                       plot_file_ext: str) -> None:
+                       plot_file_ext: str,
+                       include_title: bool = False) -> None:
     for species in species_list:
         for variables in variables_list:
             plt.clf()
@@ -59,10 +64,12 @@ def plot_scatter_plots(X_dict: dict,
                         X_dict[species[1]][data_type][variables[1]],
                         label=species[1])
 
-            plt.title(f'Espèces : {", ".join(species)}\nVariables : {", ".join(variables)}')
             plt.xlabel(variables[0])
             plt.ylabel(variables[1])
             plt.legend()
+
+            if include_title:
+                plt.title(f'Espèces : {", ".join(species)}\nVariables : {", ".join(variables)}')
 
             if show_plots:
                 plt.show()
