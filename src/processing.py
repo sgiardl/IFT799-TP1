@@ -79,16 +79,24 @@ def format_inter_class_df(df_input: pd.DataFrame,
     return df_output
 
 
-def print_latex_table(df: pd.DataFrame, header: str) -> None:
-    print('*' * 50)
-    print(f'{header}: LaTeX Code Beginning')
-    print('*' * 50)
+def create_latex_table(df: pd.DataFrame,
+                       filename: str,
+                       path: str) -> None:
+    file = open(f'{path}{filename}.txt', 'w')
+    file.write(df.to_latex(index=False))
+    file.close()
 
-    print(df.to_latex(index=False))
+    print(f'LaTeX output has been saved to: {path}{filename}.txt')
 
-    print('*' * 50)
-    print('LaTeX Code End')
-    print('*' * 50)
+    # print('*' * 50)
+    # print(f'{header}: LaTeX Code Beginning')
+    # print('*' * 50)
+    #
+    # print(df.to_latex(index=False))
+    #
+    # print('*' * 50)
+    # print('LaTeX Code End')
+    # print('*' * 50)
 
 
 def save_df_to_csv(df: pd.DataFrame,
