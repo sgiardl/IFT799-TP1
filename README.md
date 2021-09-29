@@ -13,7 +13,7 @@ Auteurs :
 
 ## Installation
 
-Installer les librairies dans un environnement Python avec la commande suivante :
+Installer les librairies dans un environnement Python 3.9.7 avec la commande suivante :
 ```
 $ pip install -r requirements.txt
 ```
