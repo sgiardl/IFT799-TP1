@@ -88,22 +88,12 @@ def create_latex_table(df: pd.DataFrame,
 
     print(f'LaTeX output has been saved to: {path}{filename}.txt')
 
-    # print('*' * 50)
-    # print(f'{header}: LaTeX Code Beginning')
-    # print('*' * 50)
-    #
-    # print(df.to_latex(index=False))
-    #
-    # print('*' * 50)
-    # print('LaTeX Code End')
-    # print('*' * 50)
-
 
 def save_df_to_csv(df: pd.DataFrame,
                    filename: str,
                    path: str) -> None:
     file_path = f'{path}{filename}.csv'
 
-    df.to_csv(file_path)
+    df.to_csv(file_path, index=False)
 
     print(f'Results table has been saved to: {file_path}')
