@@ -13,7 +13,7 @@ from sklearn.preprocessing import StandardScaler
 
 from src.distance_fct import calculate_distance, verify_class_separation
 from src.list_utils import get_all_combinations, get_combinations_of_two
-from src.plotting import plot_histograms, plot_scatter_plots
+from src.plotting import plot_histograms, plot_scatter_plots, set_plot_font_size
 from src.processing import format_intra_class_df, format_inter_class_df, create_latex_table, save_df_to_csv
 from src.constants import PATH_CSV, PATH_PLOTS, PATH_LATEX
 
@@ -37,6 +37,9 @@ if __name__ == '__main__':
 
     parser.add_argument('-sv_plts', '--save_plots', action='store', type=bool, default=True,
                         help='Choose to save plots in the plots/ directory')
+
+    parser.add_argument('-pfs', '--plot_font_size', action='store', type=int, default=16,
+                        help='Choose the plot font size')
 
     parser.add_argument('-pfe', '--plot_file_ext', action='store', type=str, default='pdf',
                         choices=['pdf', 'png', 'svg'],
@@ -224,6 +227,8 @@ if __name__ == '__main__':
     if args.show_plots or args.save_plots:
         # 2.a
         print('\nCreating plots...')
+
+        set_plot_font_size(args.plot_font_size)
 
         plot_histograms(X_dict=X_dict,
                         data_type='data',

@@ -35,6 +35,8 @@ def plot_histograms(X_dict: dict,
             if include_title:
                 plt.title(f'Espèces : {", ".join(species)}\nVariable : {variable}')
 
+            plt.tight_layout()
+
             if show_plots:
                 plt.show()
 
@@ -73,6 +75,8 @@ def plot_scatter_plots(X_dict: dict,
             if include_title:
                 plt.title(f'Espèces : {", ".join(species)}\nVariables : {", ".join(variables)}')
 
+            plt.tight_layout()
+
             if show_plots:
                 plt.show()
 
@@ -81,3 +85,7 @@ def plot_scatter_plots(X_dict: dict,
                             f'{"_".join(species)}'
                             f'_{"_".join([variables_dict[variable] for variable in variables])}'
                             f'.{plot_file_ext}')
+
+
+def set_plot_font_size(plot_font_size: int) -> None:
+    plt.rcParams.update({'font.size': plot_font_size})
